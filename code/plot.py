@@ -19,9 +19,10 @@ def pretty_plot(x, y, z, title):
 	ax.set_ylabel('Y', fontweight="bold")
 	ax.set_zlabel('Z', fontweight="bold")
 	ax.xaxis.labelpad, ax.yaxis.labelpad, ax.zaxis.labelpad = -3, -2, -2 
-	ax.set_title(title, fontweight="bold", y=1.0, pad=5)
+	ax.set_title(title, fontweight="bold", y=1.0, pad=-15)
 	ax.tick_params(axis='both', which='major', labelsize=8, pad=-1)
 	ax.tick_params(axis='z', which='major', labelsize=8, pad=0.1)
+	ax.view_init(15, -30)
 
 	# Add a color bar which maps values to colors.
 	fig.colorbar(surf, shrink=0.5, aspect=5, pad=0.1)
