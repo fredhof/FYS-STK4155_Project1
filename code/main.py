@@ -30,8 +30,11 @@ def main():
     plot.pretty_plot(x, y, nz, "Noisy Franke function")
 
     # Split data into test and train
-    combined = np.vstack((x, y)).T
-    x_train, x_test, y_train, y_test = skl.model_selection.train_test_split((combined), z, test_size=0.25, random_state=seed, shuffle=True)
+    xy_combined = np.vstack((x, y)).T
+    xy_train, xy_test, z_train, z_test = skl.model_selection.train_test_split((xy_combined), z, test_size=0.25, random_state=seed, shuffle=True)
+
+    # Scaling data
+    scaler = skl.preprocessing.StandardScaler().fit(xy_train)
 
     #analysis = analysis.analysis(x=xx,y=yy,lmd=0,degree=5,method='ols',design="yes")
     #MSE = analysis.MSE()
