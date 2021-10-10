@@ -35,7 +35,7 @@ def main():
     scaler = skl.preprocessing.StandardScaler().fit(xy_train)
     # call with scaled_train = scaler.transform(xy_train)
 
-    #analysis = analysis.analysis(x=xx,y=yy,lmd=0,degree=5,method='ols',design="yes")
+    analysis = analysis.analysis(x=xx,y=yy,lmd=0,degree=5,method='ols',design="yes")
     #MSE = analysis.MSE()
     #R2 = analysis.R2()
     #conf_interval = analysis.conf_interval()

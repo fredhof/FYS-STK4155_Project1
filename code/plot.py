@@ -17,7 +17,6 @@ def pretty_plot(x, y, z, title):
 	None
 
 	Saves produced figure to ../figures/title.png.
-
 	"""
 	
 	fig, ax = plt.subplots(subplot_kw={"projection": "3d"})

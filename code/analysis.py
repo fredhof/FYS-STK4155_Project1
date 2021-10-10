@@ -4,6 +4,7 @@ from sklearn import linear_model, metrics
 class analysis:
     def __init__(self, **kwargs):
         self.__dict__ = kwargs
+
         if self.design == "Yes" or self.design == "yes":
             self.design_matrix()
 
@@ -24,12 +25,31 @@ class analysis:
         self.X = X      
 
     def MSE(self):
+        """
+        Calculates the Mean Squared error score.
+
+        Inputs:
+        None
+
+        Outputs:
+        self.MSE - MSE score 
+        """
+
         self.regression(self.method)
         n = np.size(self.y_pred)
         self.MSE = 1/n * np.sum((self.y-self.y_pred)**2)
         return self.MSE
 
     def R2(self):
+        """
+        Calculates the R^2 score.
+
+        Inputs:
+        None
+
+        Outputs:
+        self.R2 - R^2 score 
+        """
         self.regression(self.method)
         self.R2 = 1 - np.sum((self.y-self.y_pred)**2)/np.sum((self.y-np.mean(self.y))**2)
         return self.R2
@@ -63,7 +83,7 @@ class analysis:
         else:
             raise Exception("Available keywords are 'OLS, ols, Ridge, ridge, Lasso and lasso'")
 
-
+    
     def resampling(self,resampling_method):
         if self.resampling_method == "Bootstrap" or self.resampling_method == "bootstrap":
             t = np.zeros(len(self.P))
@@ -75,11 +95,11 @@ class analysis:
             self.t = t
 
         if self.resampling_method == "Cross-validation" or self.resampling_method == "cross-validation":
-            a
+            print("nothing")
 
 
     def tests(self,run_tests):
-        # not finished, but easy to expand upon
+    # not finished, but easy to expand upon
         if self.run_tests == True:
             self.MSE()
             skl_MSE = metrics.mean_squared_error(self.y, self.y_pred)
