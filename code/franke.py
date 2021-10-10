@@ -8,3 +8,9 @@ def function(x, y):
     term3 = 0.5*np.exp(-(9*x-7)**2/4.0 - 0.25*((9*y-3)**2))
     term4 = -0.2*np.exp(-(9*x-4)**2 - (9*y-7)**2)
     return term1 + term2 + term3 + term4
+
+def noisy_function(x, y):
+    franke = function(x, y)
+    noise = np.random.normal(0,0.1,len(x)**2)
+    noise = np.reshape(noise,(len(x),len(x)))
+    return franke + noise

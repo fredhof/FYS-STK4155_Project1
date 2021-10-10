@@ -13,9 +13,13 @@ def main():
     np.random.seed(8) # set seed for reproduceability
 
     #Exercice 1 - OLS on Franke function with train-test split
+    
+    # Make Data
     N = 1e3
-    x = np.random.rand(int(N))
-    y = np.random.rand(int(N))
+    x = np.sort(np.random.uniform(0, 1, int(N))) # random uniform distribution with
+    y = np.sort(np.random.uniform(0, 1, int(N))) # with x, y E [0, 1]
+    #x = np.random.rand(int(N))
+    #y = np.random.rand(int(N))
     xx, yy = np.meshgrid(x,y)
     z = franke.function(xx, yy)
 
