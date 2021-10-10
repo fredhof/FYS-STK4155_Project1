@@ -6,7 +6,7 @@ def main():
     import numpy as np
     import pandas as pd
     import sklearn as skl
-    import franke, analysis, resampling, plot
+    import franke, analysis, methods, plot
 
     seed = 8
     np.random.seed(seed) # set seed for reproduceability
@@ -19,13 +19,14 @@ def main():
     #y = np.arange(0, 1, 0.05)
     x = np.sort(np.random.uniform(0, 1, int(N))) # random uniform distribution with
     y = np.sort(np.random.uniform(0, 1, int(N))) # with x, y E [0, 1]
+
     xx, yy = np.meshgrid(x,y)
     z = franke.function(xx, yy)
     nz = franke.noisy_function(xx, yy)
 
     # Plot default
-    plot.pretty_plot(x, y, z, "Franke function")
-    plot.pretty_plot(x, y, nz, "Noisy Franke function")
+    plot.pretty_plot(xx, yy, z, "Franke function")
+    plot.pretty_plot(xx, yy, nz, "Noisy Franke function")
 
     # Split data into test and train
     xy_combined = np.vstack((x, y)).T
@@ -35,10 +36,17 @@ def main():
     scaler = skl.preprocessing.StandardScaler().fit(xy_train)
     # call with scaled_train = scaler.transform(xy_train)
 
-    analysis = analysis.analysis(x=xx,y=yy,lmd=0,degree=5,method='ols',design="yes")
-    #MSE = analysis.MSE()
-    #R2 = analysis.R2()
-    #conf_interval = analysis.conf_interval()
+
+    # Resampling
+    # methods.resampling( input values )  
+
+    # regression example
+    X = methods.design_matrix(x,y,degree=5)
+    reg = methods.regression(X,z,"ols")
+    z_pred = reg.ols()
+    
+    analysis = analysis.analysis(z,z_pred)
+    MSE = analysis.MSE()
 
     #Exercise 2 - Bias-variance trade-off and resampling (bootstrap)
     #s

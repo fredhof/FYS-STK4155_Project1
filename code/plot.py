@@ -18,7 +18,7 @@ def pretty_plot(x, y, z, title):
 
 	Saves produced figure to ../figures/title.png.
 	"""
-	
+		
 	fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
 	# Plot the surface.
@@ -39,6 +39,6 @@ def pretty_plot(x, y, z, title):
 
 	# Add a color bar which maps values to colors.
 	fig.colorbar(surf, shrink=0.5, aspect=5, pad=0.1)
-
+	
 	# Save output
 	plt.savefig("../figures/" + str(title) + ".png")
