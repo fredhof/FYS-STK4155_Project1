@@ -3,11 +3,9 @@ import numpy as np
 
 """ creates 2D poly design matrix
 e.g. 2D 'degree' polynomial where DIM = N x P:
-
-P5_column(x**5, x**4 * y, x**3 * y**2, x**2 * y**3, x * y**4, y**5) + lower degree columns
-e.g P2 = [ 1, x, x**2
-           1, y, x*y
-           1, 1, y**2 ]
+N = number of random numbers, P = combinations for 2D 'degree' polynomial
+e.g P2_row1 = [ 1, x_1, y_1, x_1**2, x_1*y_1, y_1**2] 
+        
 
 """
 def design_matrix(x, y, degree):

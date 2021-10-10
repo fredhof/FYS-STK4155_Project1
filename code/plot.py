@@ -41,4 +41,4 @@ def pretty_plot(x, y, z, title):
 	fig.colorbar(surf, shrink=0.5, aspect=5, pad=0.1)
 	
 	# Save output
-	plt.savefig("../figures/" + str(title) + ".png")
+	plt.savefig("../article/figures/" + str(title) + ".png")
