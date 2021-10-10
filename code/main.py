@@ -4,8 +4,6 @@
 def main():
 
     import numpy as np
-    from mpl_toolkits.mplot3d import Axes3D
-    import matplotlib.pyplot as plt
     import pandas as pd
     import sklearn as skl
     import franke, analysis, resampling, plot
@@ -13,11 +11,11 @@ def main():
     seed = 8
     np.random.seed(seed) # set seed for reproduceability
 
-    #Exercice 1 - OLS on Franke function with train-test split
+    #Exercise 1 - OLS on Franke function with train-test split
 
     # Make Data
     N = 1e3
-    ##x = np.arange(0, 1, 0.05)
+    #x = np.arange(0, 1, 0.05)
     #y = np.arange(0, 1, 0.05)
     x = np.sort(np.random.uniform(0, 1, int(N))) # random uniform distribution with
     y = np.sort(np.random.uniform(0, 1, int(N))) # with x, y E [0, 1]
@@ -35,25 +33,26 @@ def main():
 
     # Scaling data
     scaler = skl.preprocessing.StandardScaler().fit(xy_train)
+    # call with scaled_train = scaler.transform(xy_train)
 
     #analysis = analysis.analysis(x=xx,y=yy,lmd=0,degree=5,method='ols',design="yes")
     #MSE = analysis.MSE()
     #R2 = analysis.R2()
     #conf_interval = analysis.conf_interval()
 
-    #Exercice 2 - Bias-variance trade-off and resampling (bootstrap)
+    #Exercise 2 - Bias-variance trade-off and resampling (bootstrap)
     #s
     
-    #Exercice 3 - Cross-validation resampling
+    #Exercise 3 - Cross-validation resampling
     #s
 
-    #Exercice 4 - Ridge Regression on the Franke function with resampling
+    #Exercise 4 - Ridge Regression on the Franke function with resampling
     #s
 
-    #Exercice 5 - Lasso Regression on the Franke function with resampling
+    #Exercise 5 - Lasso Regression on the Franke function with resampling
     #s
 
-    #Exercice 6 - Analysis of real data
+    #Exercise 6 - Analysis of real data
     #s
 
 

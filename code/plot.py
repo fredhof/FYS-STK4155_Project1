@@ -4,7 +4,21 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib import cm
 
 def pretty_plot(x, y, z, title):
+	"""
+	Plots a 3d surface coloured with the coolwarm colourmap.
 
+	Inputs:
+	x - array of x floats with len(n)
+	y - array of y floats with len(n)
+	z - array of z floats with len(n)
+	title - string containing the title of the graph/name of the output file
+
+	Outputs:
+	None
+
+	Saves produced figure to ../figures/title.png.
+
+	"""
 	
 	fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
@@ -29,4 +43,3 @@ def pretty_plot(x, y, z, title):
 
 	# Save output
 	plt.savefig("../figures/" + str(title) + ".png")
-

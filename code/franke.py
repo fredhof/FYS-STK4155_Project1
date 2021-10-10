@@ -3,6 +3,17 @@
 import numpy as np
 
 def function(x, y):
+    """
+    Returns the Franke's function that has two Gaussian peaks of different heights and a smaller dip. 
+
+    Inputs:
+    x - array of float inputs with E [0, 1]
+    y - array of float inputs with E [0, 1]
+
+    Outputs:
+    z - array of float outputs of the Franke's function.
+    """
+
     term1 = 0.75*np.exp(-(0.25*(9*x-2)**2) - 0.25*((9*y-2)**2))
     term2 = 0.75*np.exp(-((9*x+1)**2)/49.0 - 0.1*(9*y+1))
     term3 = 0.5*np.exp(-(9*x-7)**2/4.0 - 0.25*((9*y-3)**2))
@@ -10,6 +21,18 @@ def function(x, y):
     return term1 + term2 + term3 + term4
 
 def noisy_function(x, y):
+    """
+    Returns the noisy Franke's function that has two Gaussian peaks of different heights and a smaller dip. 
+    The noise is an added stochastic noise with the normal distribution N[0, 1].
+
+    Inputs:
+    x - array of float inputs with E [0, 1]
+    y - array of float inputs with E [0, 1]
+
+    Outputs:
+    z - array of float outputs of the Franke's function with added noise.
+    """
+
     franke = function(x, y)
     noise = np.random.normal(0,0.1,len(x)**2)
     noise = np.reshape(noise,(len(x),len(x)))
