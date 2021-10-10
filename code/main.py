@@ -8,12 +8,12 @@ def main():
     import matplotlib.pyplot as plt
     import pandas as pd
     import sklearn as skl
-    import franke, analysis, resampling
+    import franke, analysis, resampling, plot
 
     np.random.seed(8) # set seed for reproduceability
 
     #Exercice 1 - OLS on Franke function with train-test split
-    
+
     # Make Data
     N = 1e3
     x = np.sort(np.random.uniform(0, 1, int(N))) # random uniform distribution with
@@ -22,26 +22,30 @@ def main():
     #y = np.random.rand(int(N))
     xx, yy = np.meshgrid(x,y)
     z = franke.function(xx, yy)
+    nz = franke.noisy_function(xx, yy)
 
-    analysis = analysis.analysis(x=xx,y=yy,lmd=0,degree=5,method='ols',design="yes")
+    plot.pretty_plot(x, y, z, "Franke function")
+    plot.pretty_plot(x, y, nz, "Noisy Franke function")
+
+    #analysis = analysis.analysis(x=xx,y=yy,lmd=0,degree=5,method='ols',design="yes")
     #MSE = analysis.MSE()
     #R2 = analysis.R2()
     #conf_interval = analysis.conf_interval()
 
     #Exercice 2 - Bias-variance trade-off and resampling (bootstrap)
-    s
+    #s
     
     #Exercice 3 - Cross-validation resampling
-    s
+    #s
 
     #Exercice 4 - Ridge Regression on the Franke function with resampling
-    s
+    #s
 
     #Exercice 5 - Lasso Regression on the Franke function with resampling
-    s
+    #s
 
     #Exercice 6 - Analysis of real data
-    s
+    #s
 
 
 if __name__ == '__main__':
