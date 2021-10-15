@@ -43,10 +43,11 @@ def main():
     # regression example
     X = methods.design_matrix(x,y,degree=5)
     reg = methods.regression(X,z,"ols")
-    z_pred = reg.ols()
+    z_pred = reg.predict()
     
-    analysis = analysis.analysis(z,z_pred)
+    analysis = analysis.analysis(X,z,z_pred)
     MSE = analysis.MSE()
+    analysis.run_tests(error = 1e-12)
 
     #Exercise 2 - Bias-variance trade-off and resampling (bootstrap)
     #s

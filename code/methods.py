@@ -1,4 +1,6 @@
 import numpy as np
+from sklearn import linear_model
+from sklearn.model_selection import train_test_split, KFold
 
 
 """ creates 2D poly design matrix
@@ -14,7 +16,7 @@ def design_matrix(x, y, degree):
         y = np.ravel(y)
 
     N = len(x)
-    P = int((degree+1)*(degree+2)/2)  # Number of elements in beta
+    P = int((degree+1)*(degree+2)/2)
     X = np.ones((N,P))
 
     for i in range(1,degree+1):
@@ -30,7 +32,9 @@ class regression:
 		self.z = z # the function values that will be done regression on
 		self.reg_method = reg_method # String that specifices regression method
 		self.lmd = lmd # Lambda variable used in Ridge regression, here "k": https://en.wikipedia.org/wiki/Ridge_regression
+		self.beta = None # Least squares coefficients
 		self.z_pred = None # the regression predicted new values for z
+		self.P = None # number of columns in design matrix, also len(beta)
 
 		reg_set = {'ols','ridge','lasso'}
 
@@ -42,32 +46,47 @@ class regression:
 		"""
 		Does ordinary least squares linear regression with matrices
 		"""
-		self.z_pred = self.X @ (np.linalg.pinv(self.X.T @ self.X) @ self.X.T @ self.z)
-		return self.z_pred
+		self.beta = np.linalg.pinv(self.X.T @ self.X) @ self.X.T @ self.z
+		self.z_pred = self.X @ self.beta
 
 	def ridge(self):
 		if self.lmd == 0:
-			raise Exception("Lambda must be greater than zero. Otherwise use OLS")
-		self.z_pred = self.X @ (np.linalg.pinv(self.X.T @ self.X + self.lmd*np.identity(self.P)) @ self.X.T @ self.z)
-		return self.z_pred
+			raise Exception("Lambda must be greater than zero. Otherwise use OLS.")
+		self.beta = np.linalg.pinv(self.X.T @ self.X + self.lmd*np.identity(self.P)) @ self.X.T @ self.z
+		self.z_pred = self.X @ self.beta
 	   
 	def lasso(self):
 		# manual lasso regression is optional, can implement if needed, see lectures week 36
 		if self.lmd == 0:
-			raise Exception("Lambda must be greater than zero")
-		lasso_reg = linear_model.Lasso(fit_intercept=True, max_iter=100000, alpha=self.lmd)
+			raise Exception("Lambda must be greater than zero. Otherwise use OLS.")
+		lasso_reg = linear_model.Lasso(fit_intercept=False, max_iter=10000, alpha=self.lmd)
 		lasso_reg.fit(self.X,self.z)
 		self.beta = lasso_reg.coef_
-		self.beta[0] = lasso_reg.intercept_
 		self.z_pred = self.X @ self.beta
+
+
+	def predict(self):
+		if self.reg_method == 'ols':
+			self.ols()
+		elif self.reg_method == 'ridge':
+			self.ridge()
+		elif self.reg_method == 'lasso':
+			self.lasso()
 		return self.z_pred
+
+
+	def return_beta(self):
+		return self.beta
 
 	
 class resampling:
-	def __init__(self, X, z, resampling_method = None):
+	def __init__(self, X, z, resampling_method = None, test_ratio = 0.25):
 		self.X = X # design matrix
 		self.z = z # function values
 		self.resampling_method = resampling_method # String that specifices resampling method
+		self.test_ratio = test_ratio # ratio of train/test split 
+		self.N = None # number of bootstraps
+		self.k = None # number of folds
 
 		resampling_set = {'bootstrap', 'cross-validation'}
 
@@ -76,14 +95,17 @@ class resampling:
 
 
 	def bootstrap(self):
-		P = int(len(X[0,:]))
-		t = np.zeros(P)
-		n = len(self.z)
+		X_train, X_test, z_train, z_test = train_test_split(self.X,self.z, test_size=self.test_ratio)
 
-		for i in range(P):
-			t[i] = np.mean(self.z[np.random.randint(0,n,n)])
+		n = X_train.shape[0]
+
+
+		for i in range(self.N):
+			resample = np.random.randint(0,n,n)
+			X_new, z_new = X_train[resample], z_train[resample]
+
+
 		
-		self.t = t
 
 	def cross_validation(self):
 
