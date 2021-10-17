@@ -25,6 +25,7 @@ def pretty_plot(x, y, z, title):
 	surf = ax.plot_surface(x, y, z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
 
 	# Customize the axes.
+	"""
 	ax.set_zlim(-0.10, 1.40)
 	ax.zaxis.set_major_locator(LinearLocator(10))
 	ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
@@ -36,6 +37,7 @@ def pretty_plot(x, y, z, title):
 	ax.tick_params(axis='both', which='major', labelsize=8, pad=-1)
 	ax.tick_params(axis='z', which='major', labelsize=8, pad=0.1)
 	ax.view_init(15, -30)
+	"""
 
 	# Add a color bar which maps values to colors.
 	fig.colorbar(surf, shrink=0.5, aspect=5, pad=0.1)

@@ -7,6 +7,8 @@ def main():
     import pandas as pd
     import sklearn as skl
     import franke, analysis, methods, plot
+    from imageio import imread
+    import matplotlib.pyplot as plt
 
     seed = 8
     np.random.seed(seed) # set seed for reproduceability
@@ -14,11 +16,11 @@ def main():
     #Exercise 1 - OLS on Franke function with train-test split
 
     # Make Data
-    N = 1e3
+    N = int(1e3)
     #x = np.arange(0, 1, 0.05)
     #y = np.arange(0, 1, 0.05)
-    x = np.sort(np.random.uniform(0, 1, int(N))) # random uniform distribution with
-    y = np.sort(np.random.uniform(0, 1, int(N))) # with x, y E [0, 1]
+    x = np.sort(np.random.uniform(0, 1, N)) # random uniform distribution with
+    y = np.sort(np.random.uniform(0, 1, N)) # with x, y E [0, 1]
 
     xx, yy = np.meshgrid(x,y)
     z = franke.function(xx, yy)
@@ -42,9 +44,15 @@ def main():
 
     # regression example
     X = methods.design_matrix(x,y,degree=5)
-    reg = methods.regression(X,z,"ols")
+    reg = methods.regression(X,nz,"lasso",lmd=1e-3)
     z_pred = reg.predict()
+
+    plot.pretty_plot(xx, yy, z_pred,'lasso')
     
+    boots = methods.resampling(X,nz,'bootstrap')
+
+
+
     analysis = analysis.analysis(X,z,z_pred)
     MSE = analysis.MSE()
     analysis.run_tests(error = 1e-12)
@@ -62,7 +70,18 @@ def main():
     #s
 
     #Exercise 6 - Analysis of real data
-    #s
+    terrain = imread('../code/data/SRTM_data_Norway_1.tif')
+    terrain = terrain[:N,:N]
+    # Creates mesh of image pixels
+    x = np.linspace(0,1, np.shape(terrain)[0])
+    y = np.linspace(0,1, np.shape(terrain)[1])
+    x_mesh, y_mesh = np.meshgrid(x,y)
+    X2 = methods.design_matrix(x,y,degree=5)
+    reg2 = methods.regression(X2,terrain,'lasso',lmd=1e-1)
+    z_pred2 = reg2.predict()
+
+    plot.pretty_plot(x_mesh,y_mesh,z_pred2,'lasso terrain')
+
 
 
 if __name__ == '__main__':

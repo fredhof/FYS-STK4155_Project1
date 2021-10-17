@@ -34,7 +34,7 @@ class regression:
 		self.lmd = lmd # Lambda variable used in Ridge regression, here "k": https://en.wikipedia.org/wiki/Ridge_regression
 		self.beta = None # Least squares coefficients
 		self.z_pred = None # the regression predicted new values for z
-		self.P = None # number of columns in design matrix, also len(beta)
+		self.P = self.X.shape[1] # number of columns in design matrix, also len(beta)
 
 		reg_set = {'ols','ridge','lasso'}
 
@@ -59,9 +59,10 @@ class regression:
 		# manual lasso regression is optional, can implement if needed, see lectures week 36
 		if self.lmd == 0:
 			raise Exception("Lambda must be greater than zero. Otherwise use OLS.")
-		lasso_reg = linear_model.Lasso(fit_intercept=False, max_iter=10000, alpha=self.lmd)
+		print(self.lmd)
+		lasso_reg = linear_model.Lasso(fit_intercept=False, normalize=False, max_iter=1000000, alpha=self.lmd)
 		lasso_reg.fit(self.X,self.z)
-		self.beta = lasso_reg.coef_
+		self.beta = lasso_reg.coef_ # returns transposed dimensions for some reason, and is horribly slow..
 		self.z_pred = self.X @ self.beta
 
 
@@ -85,8 +86,8 @@ class resampling:
 		self.z = z # function values
 		self.resampling_method = resampling_method # String that specifices resampling method
 		self.test_ratio = test_ratio # ratio of train/test split 
-		self.N = None # number of bootstraps
-		self.k = None # number of folds
+		# self.N number of bootstraps
+		# self.k number of folds
 
 		resampling_set = {'bootstrap', 'cross-validation'}
 
@@ -94,19 +95,20 @@ class resampling:
 			raise Exception(f"Please set 'resampling_method' to a valid keyword. Valid input keywords are {resampling_set}")
 
 
-	def bootstrap(self):
+	def bootstrap(self, N = 100):
 		X_train, X_test, z_train, z_test = train_test_split(self.X,self.z, test_size=self.test_ratio)
 
 		n = X_train.shape[0]
 
 
-		for i in range(self.N):
+		for i in range(N):
 			resample = np.random.randint(0,n,n)
 			X_new, z_new = X_train[resample], z_train[resample]
 
+		return X_new, z_new
 
 		
 
-	def cross_validation(self):
+	def cross_validation(self, k = 5):
+		X_train, X_test, z_train, z_test = train_test_split(self.X,self.z, test_size=self.test_ratio)
 
-		print("nothing")
