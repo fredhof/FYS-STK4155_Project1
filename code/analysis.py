@@ -4,7 +4,7 @@ from sklearn import linear_model, metrics, model_selection
 class analysis:
     def __init__(self, X, z, z_pred):
         self.X = X # the 2D design matrix  
-        self.z = z # Original function output
+        self.z = z # TRUE function output, data without noise
         self.z_pred = z_pred  # Regression output, z_pred = X @ beta
 
     def MSE(self):
@@ -55,13 +55,15 @@ class analysis:
         Outputs:
         std - the variation in the beta parameter
         """
-      
+        
+
+
         cov = np.var(self.z_pred)*np.linalg.pinv(self.X.T @ self.X)
         std = np.sqrt(np.diag(cov))
-        return std
+        return std*1.96 # z = 1.96 is 95% conf interval, divide by sqrt N ?
 
     def bias(self):
-        self.bias_score = np.mean((self.z_test - np.mean(self.z_pred))**2)
+        self.bias_score = np.mean((self.z - np.mean(self.z_pred))**2)
         return self.bias_score
 
     def variance(self):
@@ -69,17 +71,27 @@ class analysis:
         return self.var
 
 
-    def run_tests(self, error = 1e-12):
-        self.MSE()
-        skl_MSE = metrics.mean_squared_error(self.z, self.z_pred)
-        self.R2()
-        skl_R2 = metrics.r2_score(self.z, self.z_pred)
-        #lin_reg = linear_model.LinearRegression()
-        #lin_reg.fit(self.z,self.z_pred)
+    def run_comparison_tests(self, X_compare, z_compare, z_pred_compare, error = 1e-12):
+        """
+        Compares analysis methods between regression methods.
+        Should be used with comparable methods, e.g. ols and skl_ols, not ols and ridge.
 
-        #R2 = model_selection.cross_val_score(lin_reg,self.z,self.z_pred)
-        #print(np.mean(R2))
-        print((self.MSE()-skl_MSE < error))
-        print((self.R2()-skl_R2 < error))
+        Inputs:
+        X_compare, z_compare, z_pred_compare (, error)
+
+        Outputs:
+        Runs tests. Prints "Tests successful" if the tests succeeds.
+        """
+
+        MSE_score = self.MSE()
+        R2_score = self.R2()
+
+        compare = analysis(X_compare,z_compare,z_pred_compare)
+        MSE_compare = compare.MSE()
+        R2_compare = compare.R2()
+        
+        assert np.abs(MSE_score - MSE_compare) < error
+        assert np.abs(R2_score - R2_compare) < error
+        print('Tests successful')
         
             
