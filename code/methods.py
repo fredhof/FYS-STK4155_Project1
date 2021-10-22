@@ -3,81 +3,206 @@ from sklearn import linear_model
 from sklearn.model_selection import train_test_split, KFold
 
 
-""" creates 2D poly design matrix
-e.g. 2D 'degree' polynomial where DIM = N x P:
-N = number of random numbers, P = combinations for 2D 'degree' polynomial
-e.g P2_row1 = [ 1, x_1, y_1, x_1**2, x_1*y_1, y_1**2] 
-        
-
-"""
 def design_matrix(x, y, degree):
-    if len(x.shape) > 1:
-        x = np.ravel(x)
-        y = np.ravel(y)
+	"""
+	Implements the Nd polynomial design matrix of a given degree based on a dataset.
 
-    N = len(x)
-    P = int((degree+1)*(degree+2)/2)
-    X = np.ones((N,P))
+	Args:
+		x (np.Array[float]):        	x-data
+		y (np.Array[float]):        	y-data
+		degree (int):					N degree of the polynomial
 
-    for i in range(1,degree+1):
-        q = int((i)*(i+1)/2)
-        for j in range(i+1):
-            X[:,q+j] = (x**(i-j))*(y**j)
+	Returns:
+		X (np.Array['z, n', float]):	Design matrix X
 
-    return X
+	"""
+
+	if len(x.shape) > 1:
+		x = np.ravel(x)
+		y = np.ravel(y)
+
+	N = len(x)
+	P = int((degree+1)*(degree+2)/2)
+	X = np.ones((N,P))
+
+	for i in range(1,degree+1):
+		q = int((i)*(i+1)/2)
+		for j in range(i+1):
+			X[:,q+j] = (x**(i-j))*(y**j)
+
+	return X
+
 
 class regression:
-	def __init__(self, X, z, reg_method = None, lmd = None):
-		self.X = X # the design matrix
-		self.z = z # the function values that will be done regression on
-		self.reg_method = reg_method # String that specifices regression method
-		self.lmd = lmd # Lambda variable used in Ridge regression, here "k": https://en.wikipedia.org/wiki/Ridge_regression
-		self.beta = None # Least squares coefficients
-		self.z_pred = None # the regression predicted new values for z
-		self.P = self.X.shape[1] # number of columns in design matrix, also len(beta)
+	"""
+	A class to represent a regression instance.
 
-		reg_set = {'ols','ridge','lasso'}
+	Attributes:
+		X:	np.Array['x, y, n', float]
+			The design matrix X of the training set
+		z:	np.Array['x, y, n', float]
+			Function output to apply regression on
+		regression_method:	string
+			Regression method. Choose between {ols, ridge, lasso}
+		lambda_:	float
+			Parameter lambda, here "k": https://en.wikipedia.org/wiki/Ridge_regression
+		beta:	np.Array['b, n', float]
+			Confidence intervals beta
+		z_pred:	np.Array['x, y', float]
+			Predicted regression values of the training dataset
+		z_pred_test:	np.Array['x, y', float]
+			Predicted regression values of the testing dataset
 
-		if self.reg_method not in reg_set:
-			raise Exception(f"Please set 'reg_method' to a valid keyword. Valid input keywords are {reg_set}")
+	Methods:
+		get_prediction():
+			Returns the predicted regression values.
+		get_beta():
+			Returns the covariance intervals beta.
+	
+	"""
 
 
-	def ols(self):
+	def __init__(self, X, z, regression_method, lambda_):
 		"""
-		Does ordinary least squares linear regression with matrices
+		Constructs the necessary attributes for the regression instance and applies it.
+
+		Args:
+			X (np.Array['x, y, n', float]):	The design matrix
+			z (np.Array['x, y, n', float]):	Function output to apply regression on
+			regression_method (string):		Regression method. Choose between {ols, skleran_ols, ridge, sklearn_ridge, sklearn_lasso}
+			lambda_ (float): 				Parameter lambda, here "k": https://en.wikipedia.org/wiki/Ridge_regression
+			beta (np.Array['b, n', float]):	Confidence intervals beta
+			z_pred (np.Array['x, y', float]):Predicted regression values of the training dataset
+			z_pred_test (np.Array['x, y', float]):Predicted regression values of the testing dataset
+		
 		"""
+
+		self.X = X
+		self.z = z
+		self.regression_method = regression_method
+		self.lambda_ = lambda_
+		self.beta = None
+		self.z_pred = None
+		self.z_pred_test = None
+
+		reg_set = {'ols', 'sklearn_ols', 'ridge', 'sklearn_ridge', 'sklearn_lasso'}
+
+		if self.regression_method not in reg_set:
+			raise MethodNotImplementedError(f"Please set 'reg_method' to a valid keyword. Valid input keywords are {reg_set}")
+
+		self.__predict()
+
+
+	def __ols(self):
+		"""
+		Applies the Ordinary Least Squares regression model on data.
+
+		"""
+		
 		self.beta = np.linalg.pinv(self.X.T @ self.X) @ self.X.T @ self.z
 		self.z_pred = self.X @ self.beta
 
-	def ridge(self):
-		if self.lmd == 0:
-			raise Exception("Lambda must be greater than zero. Otherwise use OLS.")
-		self.beta = np.linalg.pinv(self.X.T @ self.X + self.lmd*np.identity(self.P)) @ self.X.T @ self.z
+
+	def __sklearn_ols(self):
+		"""
+		Applies the Ordinary Least Squares regression model on data using the sklearn package.
+
+		"""
+
+		ols_reg = linear_model.LinearRegression(fit_intercept=False).fit(self.X,self.z)
+		self.beta = ols_reg.coef_.T
 		self.z_pred = self.X @ self.beta
+
+	def __ridge(self):
+		"""
+		Applies the Ridge regression model on data.
+
+		"""
+
+		if self.lambda_ == 0:
+			raise Exception("Lambda must be greater than zero. Otherwise use OLS.")
+		self.beta = np.linalg.pinv(self.X.T @ self.X + self.lambda_*np.identity(self.X.shape[1])) @ self.X.T @ self.z
+		self.z_pred = self.X @ self.beta
+
+
+	def __sklearn_ridge(self):
+		"""
+		Applies the Ridge regression model on data using the sklearn package.
+
+		"""
+
+		if self.lambda_ == 0:
+			raise Exception("Lambda must be greater than zero. Otherwise use OLS.")
+		ridge_reg = linear_model.Ridge(fit_intercept=False, alpha=self.lambda_).fit(self.X,self.z)
+		self.beta = ridge_reg.coef_.T
+		self.z_pred = self.X @ self.beta
+
 	   
-	def lasso(self):
-		# manual lasso regression is optional, can implement if needed, see lectures week 36
-		if self.lmd == 0:
+
+	def __sklearn_lasso(self):
+		"""
+		Applies the Lasso regression model on data using the sklearn package.
+
+		"""
+
+		if self.lambda_ == 0:
 			raise Exception("Lambda must be greater than zero. Otherwise use OLS.")
-		print(self.lmd)
-		lasso_reg = linear_model.Lasso(fit_intercept=False, normalize=False, max_iter=1000000, alpha=self.lmd)
-		lasso_reg.fit(self.X,self.z)
-		self.beta = lasso_reg.coef_ # returns transposed dimensions for some reason, and is horribly slow..
+		print(self.lambda_)
+		lasso_reg = linear_model.Lasso(fit_intercept=False, normalize=False, max_iter=1000000, alpha=self.lambda_).fit(self.X,self.z)
+		self.beta = lasso_reg.coef_.T # returns transposed dimensions for some reason, and is horribly slow..
 		self.z_pred = self.X @ self.beta
 
 
-	def predict(self):
-		if self.reg_method == 'ols':
-			self.ols()
-		elif self.reg_method == 'ridge':
-			self.ridge()
-		elif self.reg_method == 'lasso':
-			self.lasso()
-		return self.z_pred
+	def __predict(self):
+		"""
+		Applies the chosen regression method.
+
+		"""
+
+		if self.regression_method == 'ols':
+			self.__ols()
+		if self.regression_method == 'sklearn_ols':
+			self.__sklearn_ols()
+		elif self.regression_method == 'ridge':
+			self.__ridge()
+		if self.regression_method == 'sklearn_ridge':
+			self.__sklearn_ridge()
+		elif self.regression_method == 'lasso':
+			self.__sklearn_lasso()
 
 
-	def return_beta(self):
+	def get_beta(self):
+		"""
+		Returns the covariance intervals beta.
+
+		Args:
+			None
+
+		Returns:
+			beta (np.Array['b, n', float]):		Confidence intervals beta
+
+		"""
+
 		return self.beta
+		
+
+	def get_prediction(self, X):
+		"""
+		Returns the predicted regression values against test set X.
+
+		Args:
+			X np.Array['x, y, n', float]:		The test design matrix X
+
+		Returns:
+			z_pred_test (np.Array['x, y', float]):	Predicted regression values on test set
+
+		"""
+
+		self.z_pred_test = X @ self.beta
+
+		return self.z_pred_test
+
+
 
 	
 class resampling:
