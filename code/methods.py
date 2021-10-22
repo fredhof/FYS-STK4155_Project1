@@ -36,7 +36,7 @@ class regression:
 		self.z_pred = None # the regression predicted new values for z
 		self.P = self.X.shape[1] # number of columns in design matrix, also len(beta)
 
-		reg_set = {'ols','skl_ols','ridge','skl_ridge', 'skl_lasso'}
+		reg_set = {'ols','ridge','lasso'}
 
 		if self.reg_method not in reg_set:
 			raise Exception(f"Please set 'reg_method' to a valid keyword. Valid input keywords are {reg_set}")
@@ -47,43 +47,32 @@ class regression:
 		Does ordinary least squares linear regression with matrices
 		"""
 		self.beta = np.linalg.pinv(self.X.T @ self.X) @ self.X.T @ self.z
+		self.z_pred = self.X @ self.beta
 
-	def skl_ols(self):
-		ols_reg = linear_model.LinearRegression(fit_intercept=False).fit(self.X,self.z)
-		self.beta = ols_reg.coef_.T
-
-	def ridge(self): 
+	def ridge(self):
 		if self.lmd == 0:
 			raise Exception("Lambda must be greater than zero. Otherwise use OLS.")
 		self.beta = np.linalg.pinv(self.X.T @ self.X + self.lmd*np.identity(self.P)) @ self.X.T @ self.z
+		self.z_pred = self.X @ self.beta
 	   
-	def skl_ridge(self):
-		if self.lmd == 0:
-			raise Exception("Lambda must be greater than zero. Otherwise use OLS.")
-		ridge_reg = linear_model.Ridge(fit_intercept=False, alpha = self.lmd).fit(self.X,self.z)
-		self.beta = ridge_reg.coef_.T
-
-	def skl_lasso(self):
+	def lasso(self):
 		# manual lasso regression is optional, can implement if needed, see lectures week 36
 		if self.lmd == 0:
 			raise Exception("Lambda must be greater than zero. Otherwise use OLS.")
-		lasso_reg = linear_model.Lasso(fit_intercept=False, max_iter=1000000, alpha=self.lmd).fit(self.X,self.z)
-		self.beta = lasso_reg.coef_.T # returns transposed dimensions for some reason, and is horribly slow..
+		print(self.lmd)
+		lasso_reg = linear_model.Lasso(fit_intercept=False, normalize=False, max_iter=1000000, alpha=self.lmd)
+		lasso_reg.fit(self.X,self.z)
+		self.beta = lasso_reg.coef_ # returns transposed dimensions for some reason, and is horribly slow..
+		self.z_pred = self.X @ self.beta
 
 
 	def predict(self):
 		if self.reg_method == 'ols':
 			self.ols()
-		elif self.reg_method == 'skl_ols':
-			self.skl_ols()
 		elif self.reg_method == 'ridge':
 			self.ridge()
-		elif self.reg_method == 'skl_ridge':
-			self.skl_ridge()	
-		elif self.reg_method == 'skl_lasso':
-			self.skl_lasso()
-	
-		self.z_pred = X @ self.beta
+		elif self.reg_method == 'lasso':
+			self.lasso()
 		return self.z_pred
 
 
@@ -114,9 +103,9 @@ class resampling:
 
 		for i in range(N):
 			resample = np.random.randint(0,n,n)
-			X_train_new, z_train_new = X_train[resample], z_train[resample]
+			X_new, z_new = X_train[resample], z_train[resample]
 
-		return X_train_new, z_train_new
+		return X_new, z_new
 
 		
 
