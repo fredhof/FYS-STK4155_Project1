@@ -143,8 +143,7 @@ class regression:
 
 		if self.lambda_ == 0:
 			raise Exception("Lambda must be greater than zero. Otherwise use OLS.")
-		print(self.lambda_)
-		lasso_reg = linear_model.Lasso(fit_intercept=False, normalize=False, max_iter=1000000, alpha=self.lambda_).fit(self.X,self.z)
+		lasso_reg = linear_model.Lasso(fit_intercept=False, max_iter=1000000, alpha=self.lambda_).fit(self.X,self.z)
 		self.beta = lasso_reg.coef_.T # returns transposed dimensions for some reason, and is horribly slow..
 
 
@@ -162,7 +161,7 @@ class regression:
 			self.__ridge()
 		if self.regression_method == 'sklearn_ridge':
 			self.__sklearn_ridge()
-		elif self.regression_method == 'lasso':
+		elif self.regression_method == 'sklearn_lasso':
 			self.__sklearn_lasso()
 
 
