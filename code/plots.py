@@ -80,7 +80,7 @@ def plot_2d(data, title):
 	plt.savefig("../article/figures/" + str(title) + ".pdf")
 
 
-def plot_model(x, y, xx, yy, z, regression_method, max_degree, SEED, title):
+def plot_model(x, y, xx, yy, z, regression_method, lambda_, max_degree, SEED, title):
 	"""
 	"""
 
@@ -88,7 +88,7 @@ def plot_model(x, y, xx, yy, z, regression_method, max_degree, SEED, title):
 	X = methods.design_matrix(x, y, degree=max_degree)
 	
 	# Train
-	model = methods.regression(X, z, regression_method=regression_method, lambda_=None)
+	model = methods.regression(X, z, regression_method=regression_method, lambda_=lambda_)
 
     # Get models
 	z_pred_train = model.get_prediction(X)
@@ -97,7 +97,7 @@ def plot_model(x, y, xx, yy, z, regression_method, max_degree, SEED, title):
 	plot_3d(xx, yy, z_pred_train, title)
 
 
-def plot_analytics(x, y, z, regression_method, resampling, max_degree, SEED, title):
+def plot_analytics(x, y, z, regression_method, resampling, lambda_, max_degree, SEED, title):
 	"""
 	"""
 
@@ -120,7 +120,7 @@ def plot_analytics(x, y, z, regression_method, resampling, max_degree, SEED, tit
 			X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.25, random_state=SEED, shuffle=True)
 
         	# Train
-			ols = methods.regression(X_train, z_train, regression_method=regression_method, lambda_=None)
+			ols = methods.regression(X_train, z_train, regression_method=regression_method, lambda_=lambda_)
 
         	# Get models
 			z_pred_train = ols.get_prediction(X_train)

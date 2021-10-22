@@ -100,7 +100,6 @@ class regression:
 		"""
 		
 		self.beta = np.linalg.pinv(self.X.T @ self.X) @ self.X.T @ self.z
-		self.z_pred = self.X @ self.beta
 
 
 	def __sklearn_ols(self):
@@ -111,7 +110,6 @@ class regression:
 
 		ols_reg = linear_model.LinearRegression(fit_intercept=False).fit(self.X,self.z)
 		self.beta = ols_reg.coef_.T
-		self.z_pred = self.X @ self.beta
 
 	def __ridge(self):
 		"""
@@ -122,7 +120,6 @@ class regression:
 		if self.lambda_ == 0:
 			raise Exception("Lambda must be greater than zero. Otherwise use OLS.")
 		self.beta = np.linalg.pinv(self.X.T @ self.X + self.lambda_*np.identity(self.X.shape[1])) @ self.X.T @ self.z
-		self.z_pred = self.X @ self.beta
 
 
 	def __sklearn_ridge(self):
@@ -135,7 +132,6 @@ class regression:
 			raise Exception("Lambda must be greater than zero. Otherwise use OLS.")
 		ridge_reg = linear_model.Ridge(fit_intercept=False, alpha=self.lambda_).fit(self.X,self.z)
 		self.beta = ridge_reg.coef_.T
-		self.z_pred = self.X @ self.beta
 
 	   
 
@@ -150,7 +146,6 @@ class regression:
 		print(self.lambda_)
 		lasso_reg = linear_model.Lasso(fit_intercept=False, normalize=False, max_iter=1000000, alpha=self.lambda_).fit(self.X,self.z)
 		self.beta = lasso_reg.coef_.T # returns transposed dimensions for some reason, and is horribly slow..
-		self.z_pred = self.X @ self.beta
 
 
 	def __predict(self):
@@ -184,7 +179,7 @@ class regression:
 		"""
 
 		return self.beta
-		
+
 
 	def get_prediction(self, X):
 		"""
